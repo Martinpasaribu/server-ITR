@@ -10,7 +10,9 @@ app.use(cors({
     origin:   [
       
                 "http://localhost:3000","http://localhost:3001",
-                "https://savoy-client.vercel.app",
+                "https://savoy-client.vercel.app","https://www.clickusaha.com",
+                "https://clickusaha.com"
+
               
               ],
 
@@ -24,7 +26,7 @@ app.use(cors({
 app.use(express.json());
 
 app.get('/', (req, res) => {
-    res.send('Welcome to the Server Savoy!');
+    res.send('Welcome to the Server Startup!');
 });
 
 app.use('/api/v1/lead', LeadRoutes);
