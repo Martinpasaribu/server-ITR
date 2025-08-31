@@ -24,7 +24,7 @@ app.use(cors({
 
     origin:   [
       
-                "http://localhost:3000","http://localhost:3001",
+                "http://localhost:3000","http://localhost:3001","https://admin-itr.vercel.app",
                 "https://savoy-client.vercel.app","https://www.clickusaha.com",
                 "https://clickusaha.com"
 
