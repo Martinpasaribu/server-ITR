@@ -69,9 +69,15 @@ app.use(session({
         //  ==========  Development  ============
 
 
-        secure: false,
-        httpOnly: true,      
-        maxAge: 1000 * 60 * 60 * 24, // 1 hari
+        // secure: false,
+        // httpOnly: true,      
+        // maxAge: 1000 * 60 * 60 * 24, // 1 hari
+
+
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        httpOnly: true, 
+        maxAge: 1000 * 60 * 60 * 24, 
 
 }}));
 
