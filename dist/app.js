@@ -4,10 +4,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const lead_routes_1 = __importDefault(require("./routes/lead_routes"));
 const cors_1 = __importDefault(require("cors"));
-const customer_routes_1 = __importDefault(require("./routes/customer_routes"));
-const router_customer_1 = __importDefault(require("./User/route/router_customer"));
+const router_admin_user_1 = __importDefault(require("./AdminUser/route/router_admin_user"));
 const router_auth_1 = __importDefault(require("./Auth/route/router_auth"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_mongodb_session_1 = __importDefault(require("connect-mongodb-session"));
@@ -62,14 +60,12 @@ app.use((0, express_session_1.default)({
 app.get('/', (req, res) => {
     res.send('Welcome to the Server Startup!');
 });
-app.use('/api/v1/lead', lead_routes_1.default);
-app.use('/api/v1/customers', customer_routes_1.default);
 app.use('/api/v1/booking', Booking_1.default);
 app.use('/api/v1/report', Report_1.default);
 app.use('/api/v1/dashboard', Dashboard_1.default);
 app.use('/api/v1/facility', Facility_1.default);
 app.use('/api/v1/management-customer', Management_Customer_1.default);
-app.use('/api/v1/user-admin', router_customer_1.default);
+app.use('/api/v1/user-admin', router_admin_user_1.default);
 app.use('/api/v1/auth', router_auth_1.default);
 app.use('/api/v1/room', room_routes_1.default);
 exports.default = app;

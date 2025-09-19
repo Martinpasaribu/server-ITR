@@ -110,6 +110,7 @@ export class BookingControllers {
 
 
         static async DeleteBooking(req: Request, res: Response) {
+            
             const { id } = req.params;
 
             if (!id) {
@@ -121,7 +122,8 @@ export class BookingControllers {
             }
 
             try {
-                const deleted = await BookingModel.findByIdAndDelete(id);
+
+                const deleted = await BookingModel.findByIdAndDelete({_id:id});
 
                 if (!deleted) {
                 return res.status(404).json({
@@ -141,6 +143,7 @@ export class BookingControllers {
                 return res.status(500).json({
                 requestId: uuidv4(),
                 message: error.message || "Terjadi kesalahan server",
+                id: id,
                 success: false,
                 });
             }

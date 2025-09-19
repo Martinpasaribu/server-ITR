@@ -18,8 +18,8 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
 const jwt_decode_1 = require("jwt-decode");
 const uuid_1 = require("uuid");
-const models_user_1 = __importDefault(require("../../User/models/models_user"));
 const management_cmodels_1 = __importDefault(require("../../Management_Customer/models/management_cmodels"));
+const models_admin_user_1 = __importDefault(require("../../AdminUser/models/models_admin_user"));
 dotenv_1.default.config();
 class AuthController {
     static LoginCustomer(req, res) {
@@ -44,10 +44,10 @@ class AuthController {
                 const email = user.email;
                 req.session.userId = userId;
                 const accessToken = jsonwebtoken_1.default.sign({ userId, username, email }, process.env.ACCESS_TOKEN_SECRET, {
-                    expiresIn: '15m'
+                    expiresIn: '30m'
                 });
                 const refreshToken = jsonwebtoken_1.default.sign({ userId, username, email }, process.env.REFRESH_TOKEN_SECRET, {
-                    expiresIn: '30m'
+                    expiresIn: '1d'
                 });
                 yield management_cmodels_1.default.findOneAndUpdate({ _id: userId }, // Cari berdasarkan userId saja
                 { refresh_token: refreshToken }, // Update refresh_token
@@ -113,7 +113,7 @@ class AuthController {
                 // if (!recaptchaData.success || recaptchaData.score < 0.5) {
                 //     return res.status(400).json({ message: "reCAPTCHA verification failed. Please try again." });
                 // }
-                const user = yield models_user_1.default.findOne({ user_id: req.body.user_id, isDeleted: false });
+                const user = yield models_admin_user_1.default.findOne({ user_id: req.body.user_id, isDeleted: false });
                 if (!user) {
                     return res.status(404).json({ message: `User not found ${req.body.user_id}` });
                 }
@@ -128,16 +128,16 @@ class AuthController {
                     return res.status(400).json({ message: "Passwords are not the same" });
                 }
                 const userId = user._id;
-                const name = user.name;
+                const name = user.username;
                 const email = user.email;
                 req.session.userId = userId;
                 const accessToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET, {
-                    expiresIn: '15m'
-                });
-                const refreshToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET, {
                     expiresIn: '30m'
                 });
-                yield models_user_1.default.findOneAndUpdate({ _id: userId }, // Cari berdasarkan userId saja
+                const refreshToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET, {
+                    expiresIn: '1d'
+                });
+                yield models_admin_user_1.default.findOneAndUpdate({ _id: userId }, // Cari berdasarkan userId saja
                 { refresh_token: refreshToken }, // Update refresh_token
                 { new: true, runValidators: true } // Opsional: agar dokumen yang diperbarui dikembalikan
                 );
@@ -204,7 +204,7 @@ class AuthController {
                 }
                 const userId = user._id;
                 // Update refresh token menjadi null untuk user tersebut
-                yield models_user_1.default.findOneAndUpdate({ _id: userId }, { refresh_token: null });
+                yield models_admin_user_1.default.findOneAndUpdate({ _id: userId }, { refresh_token: null });
                 // Hapus cookie refreshToken
                 res.clearCookie('refreshToken');
                 // Hancurkan sesi
@@ -248,7 +248,7 @@ class AuthController {
                     });
                 }
                 // Cari user berdasarkan refresh token
-                const user = yield models_user_1.default.findOne({ refresh_token: refreshToken });
+                const user = yield models_admin_user_1.default.findOne({ refresh_token: refreshToken });
                 if (!user) {
                     return res.status(404).json({
                         message: "User not found",
@@ -257,7 +257,7 @@ class AuthController {
                 }
                 const userId = user._id;
                 // Update refresh token menjadi null untuk user tersebut
-                yield models_user_1.default.findOneAndUpdate({ _id: userId }, { refresh_token: null });
+                yield models_admin_user_1.default.findOneAndUpdate({ _id: userId }, { refresh_token: null });
                 // Hapus cookie refreshToken
                 res.clearCookie('refreshToken');
                 // Hancurkan sesi
@@ -295,9 +295,9 @@ class AuthController {
                 if (!req.session.userId) {
                     return res.status(401).json({ message: "Your session-Id no exists", success: false });
                 }
-                const user = yield models_user_1.default.findOne({ _id: req.session.userId }, {
+                const user = yield models_admin_user_1.default.findOne({ _id: req.session.userId }, {
                     uuid: true,
-                    name: true,
+                    username: true,
                     phone: true,
                     email: true,
                 });
@@ -377,7 +377,7 @@ class AuthController {
                     });
                 }
                 // Cari user berdasarkan refresh token
-                const user = yield models_user_1.default.findOne({ refresh_token: refreshToken });
+                const user = yield models_admin_user_1.default.findOne({ refresh_token: refreshToken });
                 if (!user) {
                     return res.status(403).json({
                         data: false,

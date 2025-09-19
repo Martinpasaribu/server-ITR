@@ -5,6 +5,7 @@ import CustomerModel from "../models/management_cmodels";
 import crypto from "crypto";
 import { Request, Response } from "express";
 import { RoomServices } from "../../Room/services/service_room";
+import RoomModel from "../../Room/models/room_models";
 
 dotenv.config()
 
@@ -179,7 +180,7 @@ export class ManagementController {
     static async UpdateStatusBooking(req: Request, res: Response) {
 
         const { id } = req.params;
-        const { status } = req.body;
+        const { status, roomId } = req.body;
 
         if (!status) {
             return res.status(400).json({
@@ -189,6 +190,49 @@ export class ManagementController {
         }
 
         try {
+
+            const StatusRoom = await RoomModel.findOne(
+                
+                {_id: roomId, status: false, isDeleted: false }
+            );
+
+            let newStatus: boolean;
+
+            if (status === "M" || status === "P") {
+
+                if(StatusRoom) throw new Error("Room sudah di gunakan");
+
+                newStatus = false; // kamar dipakai
+
+                const updatedRoom = await RoomModel.findByIdAndUpdate(
+                    roomId,
+                    { status: newStatus },
+                    { new: true }
+                );
+
+                if (!updatedRoom) {
+                    throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
+                }
+
+
+            } else if (status === "K") {
+                newStatus = true; // kamar dilepas
+
+                const updatedRoom = await RoomModel.findByIdAndUpdate(
+                    roomId,
+                    { status: newStatus },
+                    { new: true }
+                );
+
+                if (!updatedRoom) {
+                    throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
+                }
+
+            }
+            //  else {
+            //     throw new Error("Status tidak valid");
+            // }
+
             const updated = await CustomerModel.findOneAndUpdate(
                 { _id:id, isDeleted: false },
                 { booking_status: status },
@@ -200,7 +244,9 @@ export class ManagementController {
                 success: false,
                 message: "Customer tidak ditemukan",
             });
+
             }
+
 
             return res.status(200).json({
                 success: true,

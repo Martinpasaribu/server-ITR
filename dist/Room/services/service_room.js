@@ -19,7 +19,10 @@ class RoomService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let newStatus;
+                const StatusRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: false });
                 if (status === "confirmed") {
+                    if (StatusRoom)
+                        throw new Error("Room sudah di gunakan");
                     newStatus = false; // kamar dipakai
                 }
                 else if (status === "canceled") {
@@ -58,8 +61,11 @@ class RoomService {
     UpdateStatusRoom(status, _id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
+                const StatusRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: false });
                 let newStatus;
                 if (status === "M" || status === "P") {
+                    if (StatusRoom)
+                        throw new Error("Room sudah di gunakan");
                     newStatus = false; // kamar dipakai
                 }
                 else if (status === "K") {

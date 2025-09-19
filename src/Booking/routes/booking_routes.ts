@@ -8,6 +8,7 @@ const BookingRouter: express.Router = express.Router();
 
 BookingRouter.post("/", BookingControllers.PostBooking);
 BookingRouter.get("/", BookingControllers.GetBooking);
+BookingRouter.delete("/:id", BookingControllers.DeleteBooking);
 BookingRouter.patch("/:id/:room_key", BookingControllers.UpdateBookingStatus);
 
 

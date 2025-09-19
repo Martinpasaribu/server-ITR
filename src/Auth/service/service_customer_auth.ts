@@ -1,10 +1,11 @@
-import UserModel from "../../User/models/models_user";
+import AdminUserModel from "../../AdminUser/models/models_admin_user";
+import UserModel from "../../AdminUser/models/models_admin_user";
 
 
 
 export const  CekUser = async (email : string) => {
 
-    const users = await UserModel.findOne({email: email});
+    const users = await AdminUserModel.findOne({email: email});
 
     if(users){
         
@@ -20,7 +21,7 @@ export const  CekUser = async (email : string) => {
 export const  Register = async ( name:string, email : string, phone :number) => {
 
 
-        const Regis = await UserModel.create({
+        const Regis = await AdminUserModel.create({
             name: name,
             email: email,
             phone: phone

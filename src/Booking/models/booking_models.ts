@@ -16,10 +16,14 @@ interface IBooking extends Document{
 
 const BookingSchema = new mongoose.Schema({
 
-    username: { type: String, unique: true, required: false },
+    username: { 
+        type: String, 
+        // unique: true, 
+        required: false 
+    },
     room_key: { 
         type: mongoose.Schema.Types.ObjectId,
-        unique: true,
+        // unique: true,
         required: true,
         ref: 'Room'
      },

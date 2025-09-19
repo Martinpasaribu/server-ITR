@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from "express";
 import { ReportControllers } from "../controllers/report_controllers";
 import { upload, uploadImage } from "../../config/ImageKit";
+import { verifyAdmin } from "../../middleware/VerifyAdminId";
 
 const ReportRouter: express.Router = express.Router();
 
@@ -36,7 +37,7 @@ ReportRouter.post(
   ReportControllers.PostReport
 );
 
-ReportRouter.get("/", ReportControllers.GetReportAll);
+ReportRouter.get("/", verifyAdmin, ReportControllers.GetReportAll);
 ReportRouter.get("/:customer_id", ReportControllers.GetReportCustomer);
 ReportRouter.put("/:id", ReportControllers.UpdateReport);
 ReportRouter.delete("/:id", ReportControllers.DeleteReport);

@@ -4,8 +4,9 @@ import dotenv from "dotenv";
 import { jwtDecode } from 'jwt-decode';
 import axios, { AxiosError } from 'axios';
 import { v4 as uuidv4 } from 'uuid'; 
-import UserModel from "../../User/models/models_user";
+import UserModel from "../../AdminUser/models/models_admin_user";
 import CustomerModel from "../../Management_Customer/models/management_cmodels";
+import AdminUserModel from "../../AdminUser/models/models_admin_user";
 
 dotenv.config();
 
@@ -43,11 +44,11 @@ export class AuthController {
             req.session.userId = userId;
 
             const accessToken = jwt.sign({ userId, username, email }, process.env.ACCESS_TOKEN_SECRET as string, {
-                expiresIn: '15m'
+                expiresIn: '30m'
             });
 
             const refreshToken = jwt.sign({ userId, username, email }, process.env.REFRESH_TOKEN_SECRET as string, {
-                expiresIn: '30m'
+                expiresIn: '1d'
             });
 
             await CustomerModel.findOneAndUpdate(
@@ -131,7 +132,7 @@ export class AuthController {
             //     return res.status(400).json({ message: "reCAPTCHA verification failed. Please try again." });
             // }
 
-            const user = await UserModel.findOne({ user_id: req.body.user_id, isDeleted: false });
+            const user = await AdminUserModel.findOne({ user_id: req.body.user_id, isDeleted: false });
 
             if (!user) {
                 return res.status(404).json({ message: `User not found ${req.body.user_id}` });
@@ -153,19 +154,19 @@ export class AuthController {
             }
 
             const userId = user._id;
-            const name = user.name;
+            const name = user.username;
             const email = user.email;
             req.session.userId = userId;
 
             const accessToken = jwt.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET as string, {
-                expiresIn: '15m'
-            });
-
-            const refreshToken = jwt.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET as string, {
                 expiresIn: '30m'
             });
 
-            await UserModel.findOneAndUpdate(
+            const refreshToken = jwt.sign({ userId, name, email }, process.env.REFRESH_TOKEN_SECRET as string, {
+                expiresIn: '1d'
+            });
+
+            await AdminUserModel.findOneAndUpdate(
                 { _id: userId }, // Cari berdasarkan userId saja
                 { refresh_token: refreshToken }, // Update refresh_token
                 { new: true, runValidators: true } // Opsional: agar dokumen yang diperbarui dikembalikan
@@ -247,7 +248,7 @@ export class AuthController {
           const userId = user._id;
       
           // Update refresh token menjadi null untuk user tersebut
-          await UserModel.findOneAndUpdate(
+          await AdminUserModel.findOneAndUpdate(
             { _id: userId },
             { refresh_token: null }
           );
@@ -298,7 +299,7 @@ export class AuthController {
           }
       
           // Cari user berdasarkan refresh token
-          const user = await UserModel.findOne({ refresh_token: refreshToken });
+          const user = await AdminUserModel.findOne({ refresh_token: refreshToken });
       
           if (!user) {
           
@@ -311,7 +312,7 @@ export class AuthController {
           const userId = user._id;
       
           // Update refresh token menjadi null untuk user tersebut
-          await UserModel.findOneAndUpdate(
+          await AdminUserModel.findOneAndUpdate(
             { _id: userId },
             { refresh_token: null }
           );
@@ -357,11 +358,11 @@ export class AuthController {
                   return res.status(401).json({ message: "Your session-Id no exists", success: false });
               }
 
-              const user = await UserModel.findOne(
+              const user = await AdminUserModel.findOne(
                   {_id: req.session.userId},
                   {
                       uuid:true,
-                      name:true,
+                      username:true,
                       phone:true,
                       email:true,
                     
@@ -472,7 +473,7 @@ export class AuthController {
           }
   
           // Cari user berdasarkan refresh token
-          const user = await UserModel.findOne({ refresh_token: refreshToken });
+          const user = await AdminUserModel.findOne({ refresh_token: refreshToken });
   
           if (!user) {
               return res.status(403).json(

@@ -15,8 +15,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.refreshTokenCustomer = exports.refreshToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const dotenv_1 = __importDefault(require("dotenv"));
-const models_user_1 = __importDefault(require("../../../User/models/models_user"));
 const management_cmodels_1 = __importDefault(require("../../../Management_Customer/models/management_cmodels"));
+const models_admin_user_1 = __importDefault(require("../../../AdminUser/models/models_admin_user"));
 dotenv_1.default.config();
 const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
@@ -26,7 +26,7 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             return res.status(401).json({ message: "Session cookies empty" });
         }
         // Cari user berdasarkan refresh token
-        const user = yield models_user_1.default.findOne({ refresh_token: refreshToken });
+        const user = yield models_admin_user_1.default.findOne({ refresh_token: refreshToken });
         if (!user) {
             return res.status(403).json({ message: "Invalid refresh token" });
         }
@@ -37,7 +37,7 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             }
             // Buat access token baru
             const userId = user._id;
-            const name = user.name;
+            const name = user.username;
             const email = user.email;
             const accessToken = jsonwebtoken_1.default.sign({ userId, name, email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: "15m" } // **Diperpanjang menjadi 5 menit**
             );

@@ -71,7 +71,8 @@ export class FacilityControllers {
                 res.status(200).json({
                     requestId: uuidv4(),
                     data: users,
-                    success: true
+                    success: true,
+                    message: 'Data facility success fetch'
                 });
             
             } catch (error) {

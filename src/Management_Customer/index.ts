@@ -1,5 +1,5 @@
 
 
-import CustomerManagementRoute from './routes/management_c_routes'
+import CustomerManagement from './routes/management_c_routes'
 
-export default CustomerManagementRoute
+export default CustomerManagement

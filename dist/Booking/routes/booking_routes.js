@@ -9,5 +9,6 @@ const BookingRouter = express_1.default.Router();
 // semantic meaning
 BookingRouter.post("/", booking_controllers_1.BookingControllers.PostBooking);
 BookingRouter.get("/", booking_controllers_1.BookingControllers.GetBooking);
+BookingRouter.delete("/:id", booking_controllers_1.BookingControllers.DeleteBooking);
 BookingRouter.patch("/:id/:room_key", booking_controllers_1.BookingControllers.UpdateBookingStatus);
 exports.default = BookingRouter;

@@ -5,15 +5,17 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const mongoose_1 = __importDefault(require("mongoose"));
 const ReportSchema = new mongoose_1.default.Schema({
+    report_code: { type: String, required: true, unique: true },
     customer_key: {
         type: mongoose_1.default.Schema.Types.ObjectId,
         ref: 'Customer',
         // default: '', 
         required: false
     },
+    progress_end: { type: Date, required: false },
     report_type: { type: String, required: false, enum: ["FK", "FU", "K"], },
     broken_type: { type: String, required: false, enum: ["SP", "R", "SR", ""], },
-    progress: { type: String, required: false, enum: ["A", "P", "S", "T"], default: 'A' },
+    progress: { type: String, required: false, enum: ["A", "P", "S", "T", "RU"], default: 'A' },
     complain_des: { type: String, required: false },
     broken_des: { type: String, required: false },
     admin_note: { type: String, required: false, default: '' },

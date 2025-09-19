@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const report_controllers_1 = require("../controllers/report_controllers");
 const ImageKit_1 = require("../../config/ImageKit");
+const VerifyAdminId_1 = require("../../middleware/VerifyAdminId");
 const ReportRouter = express_1.default.Router();
 // semantic meaning
 // upload single image
@@ -37,7 +38,7 @@ ReportRouter.post("/", ImageKit_1.upload, // ✅ langsung pakai middleware
         return res.status(500).json({ error: "Gagal mengunggah gambar." });
     }
 }), report_controllers_1.ReportControllers.PostReport);
-ReportRouter.get("/", report_controllers_1.ReportControllers.GetReportAll);
+ReportRouter.get("/", VerifyAdminId_1.verifyAdmin, report_controllers_1.ReportControllers.GetReportAll);
 ReportRouter.get("/:customer_id", report_controllers_1.ReportControllers.GetReportCustomer);
 ReportRouter.put("/:id", report_controllers_1.ReportControllers.UpdateReport);
 ReportRouter.delete("/:id", report_controllers_1.ReportControllers.DeleteReport);

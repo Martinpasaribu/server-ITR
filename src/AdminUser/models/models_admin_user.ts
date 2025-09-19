@@ -2,19 +2,22 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 
 
-interface IUser extends Document {
+interface IAUser extends Document {
     user_id: string,
-    name : string;
+    username : string;
     password: string;
     email : string;
     refresh_token: string;
     createAt : number;
     creatorId: string;    
+    role : string;
+    status: string;
+    active: boolean;
 }
 
 
 
-const UserSchema: Schema = new Schema(
+const AdminUserSchema: Schema = new Schema(
     {
 
         user_id: {
@@ -22,11 +25,33 @@ const UserSchema: Schema = new Schema(
             required: [true, "name cannot be empty"],
             trim: true
         },
-        name: {
+        username: {
             type: String,
             // required: [true, "name cannot be empty"],
             trim: true
         },
+
+        role: {
+            type: String,
+            enum: ["A","CA", "SA"], // Sesuaikan dengan role yang diperlukan
+            required: true,
+            trim: true,
+        }, 
+
+        status: {
+            type: String,
+            enum: ["B", "V","P"], // Sesuaikan dengan role yang diperlukan
+            required: false,
+            default: 'V',
+            trim: true,
+        },  
+
+        active: {
+            type: Boolean,
+            required: false,
+            default: true,
+            trim: true,
+        },  
         email: {
             type: String,
             required: [true, "email cannot be empty"],
@@ -58,7 +83,7 @@ const UserSchema: Schema = new Schema(
 
 );
 
-const  UserModel = mongoose.model<IUser>('User', UserSchema,'User');
+const  AdminUserModel = mongoose.model<IAUser>('Admin', AdminUserSchema,'Admin');
 
-export default UserModel;
+export default AdminUserModel;
 

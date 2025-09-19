@@ -1,7 +1,8 @@
 import bcrypt from "bcrypt";
 import { v4 as uuidv4 } from 'uuid'; 
 import dotenv from "dotenv";
-import UserModel from "../models/models_user";
+import UserModel from "../models/models_admin_user";
+import AdminUserModel from "../models/models_admin_user";
 
 
 dotenv.config()
@@ -12,7 +13,7 @@ export class UserController {
     static async  getUser (req : any, res:any) {
 
         try {
-            const users = await UserModel.find();
+            const users = await AdminUserModel.find();
             res.status(200).json(users);
         } catch (error) {
             console.log(error);
@@ -25,7 +26,7 @@ export class UserController {
 
             const { email } = req.params;
 
-            const users = await UserModel.findOne({email: email});
+            const users = await AdminUserModel.findOne({email: email});
 
             if(users){
                 res.status(200).json(
@@ -61,12 +62,12 @@ export class UserController {
 
 
     static async Register(req: any, res: any) {
-        const { user_id, name, email, password, phone } = req.body;
+        const {  user_id, username, email, password, phone, role } = req.body;
     
         try {
 
             // 1. Cek apakah email sudah terdaftar
-            const existingUser = await UserModel.findOne({ user_id,email });
+            const existingUser = await AdminUserModel.findOne({ user_id,email });
             if (existingUser) {
                 return res.status(400).json({
                     requestId: uuidv4(),
@@ -86,10 +87,11 @@ export class UserController {
             }
     
             // 4. Simpan user ke DB
-            const user = await UserModel.create({
+            const user = await AdminUserModel.create({
                 user_id,
-                name,
+                username,
                 email,
+                role,
                 password: hashPassword || undefined,
                 phone
             });

@@ -30,6 +30,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const management_cmodels_1 = __importDefault(require("../models/management_cmodels"));
 const crypto_1 = __importDefault(require("crypto"));
 const service_room_1 = require("../../Room/services/service_room");
+const room_models_1 = __importDefault(require("../../Room/models/room_models"));
 dotenv_1.default.config();
 class ManagementController {
     static getCustomer(req, res) {
@@ -176,7 +177,7 @@ class ManagementController {
     static UpdateStatusBooking(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { id } = req.params;
-            const { status } = req.body;
+            const { status, roomId } = req.body;
             if (!status) {
                 return res.status(400).json({
                     success: false,
@@ -184,6 +185,27 @@ class ManagementController {
                 });
             }
             try {
+                const StatusRoom = yield room_models_1.default.findOne({ _id: roomId, status: false, isDeleted: false });
+                let newStatus;
+                if (status === "M" || status === "P") {
+                    if (StatusRoom)
+                        throw new Error("Room sudah di gunakan");
+                    newStatus = false; // kamar dipakai
+                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus }, { new: true });
+                    if (!updatedRoom) {
+                        throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
+                    }
+                }
+                else if (status === "K") {
+                    newStatus = true; // kamar dilepas
+                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus }, { new: true });
+                    if (!updatedRoom) {
+                        throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
+                    }
+                }
+                //  else {
+                //     throw new Error("Status tidak valid");
+                // }
                 const updated = yield management_cmodels_1.default.findOneAndUpdate({ _id: id, isDeleted: false }, { booking_status: status }, { new: true, runValidators: true });
                 if (!updated) {
                     return res.status(404).json({

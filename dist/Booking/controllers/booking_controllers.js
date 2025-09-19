@@ -115,7 +115,7 @@ class BookingControllers {
                 });
             }
             try {
-                const deleted = yield booking_models_1.default.findByIdAndDelete(id);
+                const deleted = yield booking_models_1.default.findByIdAndDelete({ _id: id });
                 if (!deleted) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),
@@ -133,6 +133,7 @@ class BookingControllers {
                 return res.status(500).json({
                     requestId: (0, uuid_1.v4)(),
                     message: error.message || "Terjadi kesalahan server",
+                    id: id,
                     success: false,
                 });
             }

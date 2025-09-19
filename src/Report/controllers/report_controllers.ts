@@ -2,6 +2,7 @@
 import { v4 as uuidv4 } from 'uuid'; 
 import { Request, Response } from "express";
 import ReportModel from '../models/report_models';
+import { generateReportCode } from '../../utils/Generate_code';
 
 export class ReportControllers {
 
@@ -20,8 +21,11 @@ export class ReportControllers {
                 });
                 }
 
+                const code = await generateReportCode(report_type);
+
                 // 2. Create report
                 const newReport = await ReportModel.create({
+                    report_code: code,
                     broken_des,
                     complain_des,
                     broken_type,
@@ -142,7 +146,22 @@ export class ReportControllers {
         static async UpdateReport(req: Request, res: Response) {
             try {
             const { id } = req.params;
-            const updated = await ReportModel.findByIdAndUpdate(id, req.body, { new: true });
+            const { progress } = req.body;
+
+            let progress_end: Date | null = null;
+            if (progress === "S" || progress === "T") {
+                progress_end = new Date();
+            }
+
+
+            const updated = await ReportModel.findByIdAndUpdate(
+                id,
+                {
+                    ...req.body,
+                    progress_end, // update progress_end sesuai logika
+                },
+                { new: true }
+            );
 
             if (!updated) {
                 return res.status(404).json({
@@ -151,6 +170,9 @@ export class ReportControllers {
                 success: false,
                 });
             }
+
+
+
 
             return res.status(200).json({
                 requestId: uuidv4(),

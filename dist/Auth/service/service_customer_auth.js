@@ -13,9 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Register = exports.CekUser = void 0;
-const models_user_1 = __importDefault(require("../../User/models/models_user"));
+const models_admin_user_1 = __importDefault(require("../../AdminUser/models/models_admin_user"));
 const CekUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
-    const users = yield models_user_1.default.findOne({ email: email });
+    const users = yield models_admin_user_1.default.findOne({ email: email });
     if (users) {
         return users._id;
     }
@@ -25,7 +25,7 @@ const CekUser = (email) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.CekUser = CekUser;
 const Register = (name, email, phone) => __awaiter(void 0, void 0, void 0, function* () {
-    const Regis = yield models_user_1.default.create({
+    const Regis = yield models_admin_user_1.default.create({
         name: name,
         email: email,
         phone: phone

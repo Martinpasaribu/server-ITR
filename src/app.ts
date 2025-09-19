@@ -1,8 +1,6 @@
 import express from 'express';
-import LeadRoutes from './routes/lead_routes';
 import cors from 'cors';
-import CustomerRoutes from './routes/customer_routes';
-import UserRouter from './User/route/router_customer';
+import UserRouter from './AdminUser/route/router_admin_user';
 import AuthRouter from './Auth/route/router_auth';
 import session from 'express-session';
 import MongoDBStore from 'connect-mongodb-session';
@@ -112,8 +110,6 @@ app.get('/', (req, res) => {
     res.send('Welcome to the Server Startup!');
 });
 
-app.use('/api/v1/lead', LeadRoutes );
-app.use('/api/v1/customers', CustomerRoutes );
 app.use('/api/v1/booking'  , Booking )  ;
 app.use('/api/v1/report'  , Report )  ;
 app.use('/api/v1/dashboard', Dashboard );

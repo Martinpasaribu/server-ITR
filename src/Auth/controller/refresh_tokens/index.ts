@@ -1,8 +1,9 @@
 
 import jwt from 'jsonwebtoken';
 import dotenv from "dotenv";
-import UserModel from '../../../User/models/models_user';
+import UserModel from '../../../AdminUser/models/models_admin_user';
 import CustomerModel from '../../../Management_Customer/models/management_cmodels';
+import AdminUserModel from '../../../AdminUser/models/models_admin_user';
 
 dotenv.config();
 
@@ -17,7 +18,7 @@ export  const refreshToken = async (req : any, res : any) => {
         }
 
         // Cari user berdasarkan refresh token
-        const user = await UserModel.findOne({ refresh_token: refreshToken });
+        const user = await AdminUserModel.findOne({ refresh_token: refreshToken });
 
         if (!user) {
             return res.status(403).json({ message: "Invalid refresh token" });
@@ -31,7 +32,7 @@ export  const refreshToken = async (req : any, res : any) => {
 
             // Buat access token baru
             const userId = user._id;
-            const name = user.name;
+            const name = user.username;
             const email = user.email;
 
             const accessToken = jwt.sign(

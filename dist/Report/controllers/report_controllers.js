@@ -15,6 +15,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ReportControllers = void 0;
 const uuid_1 = require("uuid");
 const report_models_1 = __importDefault(require("../models/report_models"));
+const Generate_code_1 = require("../../utils/Generate_code");
 class ReportControllers {
     static PostReport(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -28,8 +29,10 @@ class ReportControllers {
                         success: false,
                     });
                 }
+                const code = yield (0, Generate_code_1.generateReportCode)(report_type);
                 // 2. Create report
                 const newReport = yield report_models_1.default.create({
+                    report_code: code,
                     broken_des,
                     complain_des,
                     broken_type,
@@ -145,7 +148,12 @@ class ReportControllers {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const { id } = req.params;
-                const updated = yield report_models_1.default.findByIdAndUpdate(id, req.body, { new: true });
+                const { progress } = req.body;
+                let progress_end = null;
+                if (progress === "S" || progress === "T") {
+                    progress_end = new Date();
+                }
+                const updated = yield report_models_1.default.findByIdAndUpdate(id, Object.assign(Object.assign({}, req.body), { progress_end }), { new: true });
                 if (!updated) {
                     return res.status(404).json({
                         requestId: (0, uuid_1.v4)(),

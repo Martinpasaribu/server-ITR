@@ -3,10 +3,21 @@ import RoomModel from "../models/room_models";
 class RoomService {
 
   async KeepRoomBooking(status: string, _id: string) {
+    
     try {
+
       let newStatus: boolean;
 
+
+      const StatusRoom = await RoomModel.findByIdAndUpdate(
+        _id,
+        {status: false }
+      );
+
       if (status === "confirmed") {
+
+        if(StatusRoom) throw new Error("Room sudah di gunakan");
+
         newStatus = false; // kamar dipakai
       } else if (status === "canceled") {
         newStatus = true; // kamar dilepas
@@ -52,10 +63,21 @@ class RoomService {
 
   async UpdateStatusRoom(status: string, _id: string) {
     try {
+
+
+      const StatusRoom = await RoomModel.findByIdAndUpdate(
+        _id,
+        {status: false }
+      );
+
       let newStatus: boolean;
 
       if (status === "M" || status === "P") {
+
+        if(StatusRoom) throw new Error("Room sudah di gunakan");
+
         newStatus = false; // kamar dipakai
+
       } else if (status === "K") {
         newStatus = true; // kamar dilepas
       } else {
