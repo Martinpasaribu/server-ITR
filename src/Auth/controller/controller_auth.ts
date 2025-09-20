@@ -362,10 +362,12 @@ export class AuthController {
                   {_id: req.session.userId},
                   {
                       uuid:true,
+                      user_id:true,
                       username:true,
                       phone:true,
                       email:true,
                       role:true,
+                      createdAt:true
                     
                   }
           
