@@ -12,6 +12,7 @@ import Booking from './Booking';
 import Facility from './Facility';
 import Dashboard from './Dashboard';
 import Report from './Report';
+import Admin from './AdminUser';
 
 
 dotenv.config();
@@ -115,7 +116,7 @@ app.use('/api/v1/report'  , Report )  ;
 app.use('/api/v1/dashboard', Dashboard );
 app.use('/api/v1/facility' , Facility ) ;
 app.use('/api/v1/management-customer', CustomerManagementRoute);
-app.use('/api/v1/user-admin', UserRouter);
+app.use('/api/v1/admin', Admin);
 app.use('/api/v1/auth', AuthRouter);
 app.use('/api/v1/room', RoomRouter);
 

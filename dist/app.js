@@ -5,7 +5,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
-const router_admin_user_1 = __importDefault(require("./AdminUser/route/router_admin_user"));
 const router_auth_1 = __importDefault(require("./Auth/route/router_auth"));
 const express_session_1 = __importDefault(require("express-session"));
 const connect_mongodb_session_1 = __importDefault(require("connect-mongodb-session"));
@@ -17,6 +16,7 @@ const Booking_1 = __importDefault(require("./Booking"));
 const Facility_1 = __importDefault(require("./Facility"));
 const Dashboard_1 = __importDefault(require("./Dashboard"));
 const Report_1 = __importDefault(require("./Report"));
+const AdminUser_1 = __importDefault(require("./AdminUser"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
@@ -65,7 +65,7 @@ app.use('/api/v1/report', Report_1.default);
 app.use('/api/v1/dashboard', Dashboard_1.default);
 app.use('/api/v1/facility', Facility_1.default);
 app.use('/api/v1/management-customer', Management_Customer_1.default);
-app.use('/api/v1/user-admin', router_admin_user_1.default);
+app.use('/api/v1/admin', AdminUser_1.default);
 app.use('/api/v1/auth', router_auth_1.default);
 app.use('/api/v1/room', room_routes_1.default);
 exports.default = app;

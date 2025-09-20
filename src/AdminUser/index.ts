@@ -1,5 +1,3 @@
+import Admin from './route/router_admin_user'
 
-
-import BookingCustomer from './route/router_admin_user'
-
-export default BookingCustomer
+export default Admin
