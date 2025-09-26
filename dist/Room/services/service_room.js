@@ -19,13 +19,13 @@ class RoomService {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 let newStatus;
-                const StatusRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: false });
-                if (status === "confirmed") {
-                    if (StatusRoom)
+                const StatusRoom = yield room_models_1.default.findOneAndUpdate({ _id, status: true }, { status: false });
+                if (status === "C") {
+                    if (!StatusRoom)
                         throw new Error("Room sudah di gunakan");
                     newStatus = false; // kamar dipakai
                 }
-                else if (status === "canceled") {
+                else if (status === "CL") {
                     newStatus = true; // kamar dilepas
                 }
                 else {
@@ -33,7 +33,7 @@ class RoomService {
                 }
                 const updatedRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: newStatus }, { new: true });
                 if (!updatedRoom) {
-                    throw new Error(`Room not found ${_id}`); // lempar error, biar controller yang handle response
+                    throw new Error(`Room not found ${_id} (KeepRoomBooking)`); // lempar error, biar controller yang handle response
                 }
                 return updatedRoom;
             }
@@ -43,14 +43,44 @@ class RoomService {
             }
         });
     }
+    AddCustomerToRoom(_id, customer_key) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const AddCustomer = yield room_models_1.default.findOneAndUpdate({ _id, status: true }, { status: false, customer_key });
+                if (!AddCustomer) {
+                    throw new Error(`Room not found ${_id} (AddCustomerToRoom)`); // lempar error, biar controller yang handle response
+                }
+                return true;
+            }
+            catch (err) {
+                console.error("Gagal add customer to room:", err);
+                throw err;
+            }
+        });
+    }
     CekRoomAvailable(_id) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const RoomStatus = yield room_models_1.default.findOne({ _id, isDeleted: false });
                 if (!RoomStatus) {
-                    throw new Error(`Room not found ${_id}`); // lempar error, biar controller yang handle response
+                    throw new Error(`Room not found ${_id} (CekRoomAvailable)`); // lempar error, biar controller yang handle response
                 }
                 return RoomStatus.status;
+            }
+            catch (err) {
+                console.error("Gagal cek status kamar:", err);
+                throw err;
+            }
+        });
+    }
+    CekRoomAvailableOnUse(_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const RoomStatus = yield room_models_1.default.findOne({ _id: _id, status: true, isDeleted: false });
+                if (!RoomStatus) {
+                    throw new Error(`Room not found ${_id} (CekRoomAvailableOnUse)`); // lempar error, biar controller yang handle response
+                }
+                return true;
             }
             catch (err) {
                 console.error("Gagal cek status kamar:", err);
@@ -64,7 +94,7 @@ class RoomService {
                 const StatusRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: false });
                 let newStatus;
                 if (status === "M" || status === "P") {
-                    if (StatusRoom)
+                    if (!StatusRoom)
                         throw new Error("Room sudah di gunakan");
                     newStatus = false; // kamar dipakai
                 }
@@ -76,7 +106,7 @@ class RoomService {
                 }
                 const updatedRoom = yield room_models_1.default.findByIdAndUpdate(_id, { status: newStatus }, { new: true });
                 if (!updatedRoom) {
-                    throw new Error(`Room not found ${_id}`); // lempar error, biar controller yang handle response
+                    throw new Error(`Room not found ${_id} (UpdateStatusRoom)`); // lempar error, biar controller yang handle response
                 }
                 return updatedRoom;
             }

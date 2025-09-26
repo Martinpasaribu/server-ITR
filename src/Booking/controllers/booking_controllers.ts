@@ -159,6 +159,13 @@ export class BookingControllers {
                 return res.status(400).json({ message: "Status is required" });
             }
 
+            const updateRoom = await RoomServices.KeepRoomBooking(status, room_key);
+
+
+            if (!updateRoom) {
+                return res.status(404).json({ message: "Booking not found" });
+            }
+
             const updatedBooking = await BookingModel.findByIdAndUpdate(
                 id,
                 { status },
@@ -169,21 +176,20 @@ export class BookingControllers {
                 return res.status(404).json({ message: "Booking not found" });
                 }
 
-            const updateRoom = await RoomServices.KeepRoomBooking(status, room_key);
-
-
-            if (!updatedBooking) {
-                return res.status(404).json({ message: "Booking not found" });
-            }
-
             res.status(200).json({
                 message: "Booking status updated successfully",
                 data: updatedBooking,
                 updateRoom: updateRoom,
             });
             } catch (error) {
-            console.error(error);
-            res.status(500).json({ message: "Internal server error" });
+                console.error(error);
+                res.status(500).json(
+                {
+                    requestId: uuidv4(),
+                    data: null,
+                    message: (error as Error).message || "Internal Server Error",
+                    success: false
+                });
             }
         }
 

@@ -30,7 +30,7 @@ const BookingSchema = new mongoose.Schema({
     phone: { type: Number, required: true },
     email: { type: String, default: ""},
     booking_date: { type: Date, required: false },
-    status: { type: String, default:'pending', enum:["pending" , "confirmed" , "canceled"], required: false },
+    status: { type: String, default:'P', enum:["P" , "C" , "CL"], required: false },
     
     isDeleted: {
         type: Boolean,

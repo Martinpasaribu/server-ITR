@@ -123,7 +123,7 @@ export class ManagementController {
                 });
             }
 
-            const updateRoom = await RoomServices.UpdateStatusRoom(booking_status, room_key);
+            await RoomServices.CekRoomAvailableOnUse(room_key);
 
             // 3. Cek apakah email & phone sudah ada
             const existingOrder = await CustomerModel.findOne({ email: email, phone: phone });
@@ -156,6 +156,9 @@ export class ManagementController {
                 booking_status,
                 password: hashPassword || undefined,
             });
+
+            await RoomServices.AddCustomerToRoom(room_key, user._id);
+
 
             // 6. Respon sukses
             return res.status(201).json({
@@ -264,34 +267,47 @@ export class ManagementController {
 
 
     static async UpdateCustomer(req: Request, res: Response) {
-    const { id } = req.params;
-    const { password, ...data } = req.body; // pisahkan password dari field lain
+        
+        const { id } = req.params;
 
-    if (!id) {
-        return res.status(400).json({ success: false, message: "ID kosong" });
-    }
+        const { password, ...data } = req.body; // pisahkan password dari field lain
 
-    try {
-        // Hash password jika ada
-        if (password && password.trim() !== "") {
-        const salt = await bcrypt.genSalt();
-        data.password = await bcrypt.hash(password, salt);
+        if (!id) {
+            return res.status(400).json({ success: false, message: "ID kosong" });
         }
 
-        const updated = await CustomerModel.findOneAndUpdate(
-        { _id: id, isDeleted: false },
-        data,
-        { new: true, runValidators: true }
+        await RoomServices.CekRoomAvailableOnUse(data.room_key);
+
+        try {
+            // Hash password jika ada
+            if (password && password.trim() !== "") {
+                const salt = await bcrypt.genSalt();
+                data.password = await bcrypt.hash(password, salt);
+            }
+
+            const updated = await CustomerModel.findOneAndUpdate(
+                { _id: id, isDeleted: false },
+                data,
+                { new: true, runValidators: true }
+            );
+
+            if (!updated) {
+                return res.status(404).json({ success: false, message: "Customer tidak ditemukan" });
+            }
+            
+            await RoomServices.AddCustomerToRoom(data.room_key, id);
+
+            return res.status(200).json({ success: true, message: "Customer berhasil diupdate", data: updated });
+
+        } catch (error) {
+            return res.status(500).json(
+            {
+            requestId: uuidv4(),
+            message: (error as Error).message || "Terjadi kesalahan pada server.",
+            success: false,
+            }
         );
-
-        if (!updated) {
-        return res.status(404).json({ success: false, message: "Customer tidak ditemukan" });
         }
-
-        return res.status(200).json({ success: true, message: "Customer berhasil diupdate", data: updated });
-    } catch (err: any) {
-        return res.status(500).json({ success: false, message: err.message || "Server error" });
-    }
     }
 
     static async DeletedCustomer(req: Request, res: Response) {

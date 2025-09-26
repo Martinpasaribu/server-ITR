@@ -147,11 +147,11 @@ class BookingControllers {
                 if (!status) {
                     return res.status(400).json({ message: "Status is required" });
                 }
-                const updatedBooking = yield booking_models_1.default.findByIdAndUpdate(id, { status }, { new: true });
-                if (!updatedBooking) {
+                const updateRoom = yield service_room_1.RoomServices.KeepRoomBooking(status, room_key);
+                if (!updateRoom) {
                     return res.status(404).json({ message: "Booking not found" });
                 }
-                const updateRoom = yield service_room_1.RoomServices.KeepRoomBooking(status, room_key);
+                const updatedBooking = yield booking_models_1.default.findByIdAndUpdate(id, { status }, { new: true });
                 if (!updatedBooking) {
                     return res.status(404).json({ message: "Booking not found" });
                 }
@@ -163,7 +163,12 @@ class BookingControllers {
             }
             catch (error) {
                 console.error(error);
-                res.status(500).json({ message: "Internal server error" });
+                res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    data: null,
+                    message: error.message || "Internal Server Error",
+                    success: false
+                });
             }
         });
     }

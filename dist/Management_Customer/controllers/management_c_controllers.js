@@ -126,7 +126,7 @@ class ManagementController {
                         success: false,
                     });
                 }
-                const updateRoom = yield service_room_1.RoomServices.UpdateStatusRoom(booking_status, room_key);
+                yield service_room_1.RoomServices.CekRoomAvailableOnUse(room_key);
                 // 3. Cek apakah email & phone sudah ada
                 const existingOrder = yield management_cmodels_1.default.findOne({ email: email, phone: phone });
                 if (existingOrder) {
@@ -155,6 +155,7 @@ class ManagementController {
                     booking_status,
                     password: hashPassword || undefined,
                 });
+                yield service_room_1.RoomServices.AddCustomerToRoom(room_key, user._id);
                 // 6. Respon sukses
                 return res.status(201).json({
                     requestId: (0, uuid_1.v4)(),
@@ -234,6 +235,7 @@ class ManagementController {
             if (!id) {
                 return res.status(400).json({ success: false, message: "ID kosong" });
             }
+            yield service_room_1.RoomServices.CekRoomAvailableOnUse(data.room_key);
             try {
                 // Hash password jika ada
                 if (password && password.trim() !== "") {
@@ -244,10 +246,15 @@ class ManagementController {
                 if (!updated) {
                     return res.status(404).json({ success: false, message: "Customer tidak ditemukan" });
                 }
+                yield service_room_1.RoomServices.AddCustomerToRoom(data.room_key, id);
                 return res.status(200).json({ success: true, message: "Customer berhasil diupdate", data: updated });
             }
-            catch (err) {
-                return res.status(500).json({ success: false, message: err.message || "Server error" });
+            catch (error) {
+                return res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    message: error.message || "Terjadi kesalahan pada server.",
+                    success: false,
+                });
             }
         });
     }

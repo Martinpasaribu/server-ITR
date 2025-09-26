@@ -11,7 +11,7 @@ export class FacilityControllers {
 
             try {
                 // 1. Validasi input
-                if (!name || !code || !price || !status || !date_in || !date_repair  || !qty) {
+                if (!name || !code || !price || !status || !date_in || !qty) {
                 return res.status(400).json({
                     requestId: uuidv4(),
                     message: `All fields can't be empty`,

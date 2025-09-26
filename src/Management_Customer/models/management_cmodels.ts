@@ -3,7 +3,8 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 
 interface IMCustomer extends Document {
-    user_id: string,
+
+    _id: string,
     room_key: string;
     nik: number;
     bill_status: string;
