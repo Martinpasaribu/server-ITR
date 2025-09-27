@@ -17,6 +17,7 @@ const Facility_1 = __importDefault(require("./Facility"));
 const Dashboard_1 = __importDefault(require("./Dashboard"));
 const Report_1 = __importDefault(require("./Report"));
 const AdminUser_1 = __importDefault(require("./AdminUser"));
+const contact_1 = __importDefault(require("./contact"));
 dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use((0, cors_1.default)({
@@ -62,6 +63,7 @@ app.get('/', (req, res) => {
 });
 app.use('/api/v1/booking', Booking_1.default);
 app.use('/api/v1/report', Report_1.default);
+app.use('/api/v1/contact', contact_1.default);
 app.use('/api/v1/dashboard', Dashboard_1.default);
 app.use('/api/v1/facility', Facility_1.default);
 app.use('/api/v1/management-customer', Management_Customer_1.default);

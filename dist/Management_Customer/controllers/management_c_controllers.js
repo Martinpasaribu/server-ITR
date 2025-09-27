@@ -258,6 +258,81 @@ class ManagementController {
             }
         });
     }
+    static UpdateCustomerClient(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { _id } = req.params;
+            const { username, email, user_id, phone, password } = req.body;
+            if (!_id) {
+                return res.status(400).json({ success: false, message: "ID kosong" });
+            }
+            const oldAdmin = yield management_cmodels_1.default.findById(_id);
+            if (!oldAdmin) {
+                return res.status(404).json({ success: false, message: "oldEmployee not found" });
+            }
+            try {
+                const updateData = {};
+                // isi hanya kalau ada datanya
+                if (username && username.trim() !== "")
+                    updateData.username = username;
+                if (email && email.trim() !== "")
+                    updateData.email = email;
+                if (user_id && user_id.trim() !== "")
+                    updateData.user_id = user_id;
+                if (phone !== undefined && phone !== null && String(phone).trim() !== "") {
+                    updateData.phone = String(phone).trim();
+                }
+                if (password && password.trim() !== "") {
+                    const salt = yield bcrypt_1.default.genSalt();
+                    updateData.password = yield bcrypt_1.default.hash(password, salt);
+                }
+                // 1. Cek apakah user_id sudah ada
+                const existingUser = yield management_cmodels_1.default.findOne({ user_id: user_id, username: username, isDelete: false });
+                if (existingUser) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        data: null,
+                        message: `UserID: ${user_id} atau Username: ${username} sudah terdaftar.`,
+                        success: false
+                    });
+                }
+                if (email) {
+                    // 2. Validasi format email
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    if (!emailRegex.test(email)) {
+                        return res.status(400).json({
+                            requestId: (0, uuid_1.v4)(),
+                            message: "Format email tidak valid.",
+                            success: false,
+                        });
+                    }
+                }
+                // 3. Cek apakah email & phone sudah ada
+                const existingOrder = yield management_cmodels_1.default.findOne({ email, phone, isDelete: false });
+                if (existingOrder) {
+                    return res.status(409).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: `Email ${email} atau ${phone} sudah ada, gunakan yang lain.`,
+                        success: false,
+                    });
+                }
+                const updated = yield management_cmodels_1.default.findOneAndUpdate({ _id, isDeleted: false }, { $set: updateData }, { new: true, runValidators: true });
+                if (!updated) {
+                    return res.status(404).json({ success: false, message: "Profile tidak ditemukan" });
+                }
+                return res.status(200).json({
+                    success: true,
+                    message: "Profile berhasil diupdate",
+                    data: updated
+                });
+            }
+            catch (err) {
+                return res.status(500).json({
+                    success: false,
+                    message: err.message || "Server error"
+                });
+            }
+        });
+    }
     static DeletedCustomer(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
             const { _id, room_id } = req.params;

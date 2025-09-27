@@ -13,6 +13,7 @@ import Facility from './Facility';
 import Dashboard from './Dashboard';
 import Report from './Report';
 import Admin from './AdminUser';
+import Contact from './contact';
 
 
 dotenv.config();
@@ -112,7 +113,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/booking'  , Booking )  ;
-app.use('/api/v1/report'  , Report )  ;
+app.use('/api/v1/report'  , Report ) ;
+app.use('/api/v1/contact', Contact );
 app.use('/api/v1/dashboard', Dashboard );
 app.use('/api/v1/facility' , Facility ) ;
 app.use('/api/v1/management-customer', CustomerManagementRoute);

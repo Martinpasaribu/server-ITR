@@ -336,12 +336,14 @@ class AuthController {
                 const user = yield management_cmodels_1.default.findOne({ _id: req.session.userId }, {
                     _id: true,
                     username: true,
+                    user_id: true,
                     phone: true,
                     email: true,
                     room_key: true,
                     bill_status: true,
                     booking_status: true,
                     role: true,
+                    createdAt: true,
                     checkIn: true,
                     checkOut: true
                 }).populate('room_key');

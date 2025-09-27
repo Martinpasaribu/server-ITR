@@ -415,12 +415,14 @@ export class AuthController {
                   {
                       _id:true,
                       username:true,
+                      user_id:true,
                       phone:true,
                       email:true,
                       room_key: true,
                       bill_status: true,
                       booking_status: true,
                       role: true,
+                      createdAt:true,
                       checkIn: true,
                       checkOut: true
                     
