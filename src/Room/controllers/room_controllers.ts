@@ -2,12 +2,13 @@
 import { v4 as uuidv4 } from 'uuid'; 
 import RoomModel, { Facility } from '../models/room_models';
 import { Request, Response } from "express";
+import mongoose from 'mongoose';
 
 export class RoomControllers {
 
 
         static async PostRoom(req: any, res: any) {
-            const { code, price, facility } = req.body;
+            const { name, code, price, facility } = req.body;
 
             try {
                 // 1. Validasi input
@@ -31,9 +32,10 @@ export class RoomControllers {
 
                 // 3. Create room
                 const newRoom = await RoomModel.create({
-                code: code.trim().toUpperCase(),
-                price,
-                facility: facility
+                    name,
+                    code: code.trim().toUpperCase(),
+                    price,
+                    facility: facility
                 });
 
                 // 4. Response sukses
@@ -54,6 +56,120 @@ export class RoomControllers {
             }
         }
 
+
+
+        // ==============================
+        // ✅ Ambil Room berdasarkan ID
+        // ==============================
+        static async getRoomById(req: Request, res: Response) {
+            try {
+            const { id } = req.params;
+
+            // Validasi ID
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).json({
+                requestId: uuidv4(),
+                message: "Format ID Room tidak valid",
+                success: false,
+                data: null,
+                });
+            }
+
+            const room = await RoomModel.findOne({ _id: id, isDeleted: false });
+
+            if (!room) {
+                return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Room tidak ditemukan",
+                success: false,
+                data: null,
+                });
+            }
+
+            return res.status(200).json({
+                requestId: uuidv4(),
+                message: "Room berhasil diambil",
+                success: true,
+                data: room,
+            });
+            } catch (err) {
+            console.error("Error getRoomById:", err);
+            return res.status(500).json({
+                requestId: uuidv4(),
+                message: "Terjadi kesalahan pada server",
+                success: false,
+            });
+            }
+        }
+
+        static async updateRoom(req: Request, res: Response) {
+            try {
+            const { id } = req.params;
+            const { name, code, price, status, facility } = req.body;
+
+            // 🧩 Validasi ID
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                return res.status(400).json({
+                requestId: uuidv4(),
+                message: "ID Room tidak valid",
+                success: false,
+                });
+            }
+
+            const existingRoom = await RoomModel.findOne({ code: code.trim().toUpperCase() });
+            if (existingRoom) {
+                return res.status(409).json({
+                    requestId: uuidv4(),
+                    message: "Kode room sudah digunakan, silakan gunakan kode lain.",
+                    success: false,
+                });
+            }
+            // 🧱 Buat objek update
+            const updateData: any = {
+                updatedAt: new Date(),
+            };
+
+            if (name !== undefined) updateData.name = name;
+            if (code !== undefined) updateData.code = code;
+            if (price !== undefined) updateData.price = price;
+            if (status !== undefined) updateData.status = status;
+
+            // ⚡ Ganti seluruh facility lama dengan yang baru
+            if (Array.isArray(facility)) {
+                updateData.facility = facility;
+            }
+
+            // 🚀 Update ke database
+            const updatedRoom = await RoomModel.findOneAndUpdate(
+                { _id: id, isDeleted: false },
+                { $set: updateData },
+                { new: true }
+            );
+
+            if (!updatedRoom) {
+                return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Room tidak ditemukan",
+                success: false,
+                });
+            }
+
+            // ✅ Berhasil
+            return res.status(200).json({
+                requestId: uuidv4(),
+                message: "Room berhasil diperbarui",
+                success: true,
+                data: updatedRoom,
+            });
+            } catch (err) {
+            console.error("Error updateRoom:", err);
+            return res.status(500).json({
+                requestId: uuidv4(),
+                message: "Terjadi kesalahan pada server",
+                success: false,
+            });
+            }
+        }
 
         static async GetRoom  (req : any , res:any)  {
 
@@ -304,39 +420,39 @@ export class RoomControllers {
         
 
 
-static async UploadFacilityImage(req: Request, res: Response) {
-  const { code, facilityId } = req.params;
-  const { image } = req.body; // udah diisi di middleware
+        static async UploadFacilityImage(req: Request, res: Response) {
+        const { code, facilityId } = req.params;
+        const { image } = req.body; // udah diisi di middleware
 
-  try {
-    const room = await RoomModel.findOneAndUpdate(
-      { code, "facility._id": facilityId },
-      { $set: { "facility.$.image": image } },
-      { new: true }
-    );
+        try {
+            const room = await RoomModel.findOneAndUpdate(
+            { code, "facility._id": facilityId },
+            { $set: { "facility.$.image": image } },
+            { new: true }
+            );
 
-    if (!room) {
-      return res.status(404).json({
-        requestId: uuidv4(),
-        message: "Room or facility not found",
-        success: false,
-      });
-    }
+            if (!room) {
+            return res.status(404).json({
+                requestId: uuidv4(),
+                message: "Room or facility not found",
+                success: false,
+            });
+            }
 
-    return res.status(200).json({
-      requestId: uuidv4(),
-      data: room,
-      message: "Facility image updated successfully",
-      success: true,
-    });
-  } catch (error) {
-    return res.status(500).json({
-      requestId: uuidv4(),
-      message: (error as Error).message,
-      success: false,
-    });
-  }
-}
+            return res.status(200).json({
+            requestId: uuidv4(),
+            data: room,
+            message: "Facility image updated successfully",
+            success: true,
+            });
+        } catch (error) {
+            return res.status(500).json({
+            requestId: uuidv4(),
+            message: (error as Error).message,
+            success: false,
+            });
+        }
+        }
 
         static async DeleteFacilityImage(req: any, res: any) {
             const { code, facilityId } = req.params;

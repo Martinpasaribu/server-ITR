@@ -15,10 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomControllers = void 0;
 const uuid_1 = require("uuid");
 const room_models_1 = __importDefault(require("../models/room_models"));
+const mongoose_1 = __importDefault(require("mongoose"));
 class RoomControllers {
     static PostRoom(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { code, price, facility } = req.body;
+            const { name, code, price, facility } = req.body;
             try {
                 // 1. Validasi input
                 if (!code || !price) {
@@ -39,6 +40,7 @@ class RoomControllers {
                 }
                 // 3. Create room
                 const newRoom = yield room_models_1.default.create({
+                    name,
                     code: code.trim().toUpperCase(),
                     price,
                     facility: facility
@@ -57,6 +59,112 @@ class RoomControllers {
                     requestId: (0, uuid_1.v4)(),
                     data: null,
                     message: error.message,
+                    success: false,
+                });
+            }
+        });
+    }
+    // ==============================
+    // ✅ Ambil Room berdasarkan ID
+    // ==============================
+    static getRoomById(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = req.params;
+                // Validasi ID
+                if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Format ID Room tidak valid",
+                        success: false,
+                        data: null,
+                    });
+                }
+                const room = yield room_models_1.default.findOne({ _id: id, isDeleted: false });
+                if (!room) {
+                    return res.status(404).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Room tidak ditemukan",
+                        success: false,
+                        data: null,
+                    });
+                }
+                return res.status(200).json({
+                    requestId: (0, uuid_1.v4)(),
+                    message: "Room berhasil diambil",
+                    success: true,
+                    data: room,
+                });
+            }
+            catch (err) {
+                console.error("Error getRoomById:", err);
+                return res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    message: "Terjadi kesalahan pada server",
+                    success: false,
+                });
+            }
+        });
+    }
+    static updateRoom(req, res) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const { id } = req.params;
+                const { name, code, price, status, facility } = req.body;
+                // 🧩 Validasi ID
+                if (!mongoose_1.default.Types.ObjectId.isValid(id)) {
+                    return res.status(400).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "ID Room tidak valid",
+                        success: false,
+                    });
+                }
+                const existingRoom = yield room_models_1.default.findOne({ code: code.trim().toUpperCase() });
+                if (existingRoom) {
+                    return res.status(409).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Kode room sudah digunakan, silakan gunakan kode lain.",
+                        success: false,
+                    });
+                }
+                // 🧱 Buat objek update
+                const updateData = {
+                    updatedAt: new Date(),
+                };
+                if (name !== undefined)
+                    updateData.name = name;
+                if (code !== undefined)
+                    updateData.code = code;
+                if (price !== undefined)
+                    updateData.price = price;
+                if (status !== undefined)
+                    updateData.status = status;
+                // ⚡ Ganti seluruh facility lama dengan yang baru
+                if (Array.isArray(facility)) {
+                    updateData.facility = facility;
+                }
+                // 🚀 Update ke database
+                const updatedRoom = yield room_models_1.default.findOneAndUpdate({ _id: id, isDeleted: false }, { $set: updateData }, { new: true });
+                if (!updatedRoom) {
+                    return res.status(404).json({
+                        requestId: (0, uuid_1.v4)(),
+                        message: "Room tidak ditemukan",
+                        success: false,
+                    });
+                }
+                // ✅ Berhasil
+                return res.status(200).json({
+                    requestId: (0, uuid_1.v4)(),
+                    message: "Room berhasil diperbarui",
+                    success: true,
+                    data: updatedRoom,
+                });
+            }
+            catch (err) {
+                console.error("Error updateRoom:", err);
+                return res.status(500).json({
+                    requestId: (0, uuid_1.v4)(),
+                    message: "Terjadi kesalahan pada server",
                     success: false,
                 });
             }

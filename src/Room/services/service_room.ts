@@ -46,25 +46,46 @@ class RoomService {
   }
 
   async AddCustomerToRoom(_id: string, customer_key: string) {
-    
     try {
+      // 1️⃣ Cek apakah customer sudah terdaftar di room lain
+      const existingRoom = await RoomModel.findOne({ customer_key });
 
-      const AddCustomer = await RoomModel.findOneAndUpdate(
-      { _id, status: true },
-      { status: false, customer_key }
-      );
-
-      if (!AddCustomer) {
-        throw new Error(`Room not found ${_id} (AddCustomerToRoom)`); // lempar error, biar controller yang handle response
+      if (existingRoom) {
+        // 2️⃣ Kosongkan data lama di room sebelumnya
+        await RoomModel.findByIdAndUpdate(existingRoom._id, {
+          $set: {
+            customer_key: null,
+            status: true, // kembali available
+          },
+        });
+        console.log(`Customer sebelumnya dihapus dari room ${existingRoom._id}`);
       }
 
+      // 3️⃣ Tambahkan customer ke room baru
+      const updatedRoom = await RoomModel.findOneAndUpdate(
+        { _id, status: true },
+        {
+          $set: {
+            status: false, // room jadi tidak available
+            customer_key,
+          },
+        },
+        { new: true }
+      );
+
+      if (!updatedRoom) {
+        throw new Error(`Room tidak ditemukan atau sudah terisi: ${_id}`);
+      }
+
+      console.log(`Customer ${customer_key} berhasil ditambahkan ke room ${_id}`);
       return true;
 
     } catch (err) {
-      console.error("Gagal add customer to room:", err);
+      console.error("Gagal menambahkan customer ke room:", err);
       throw err;
     }
   }
+
 
 
   async CekRoomAvailable(_id: string){

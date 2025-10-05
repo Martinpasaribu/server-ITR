@@ -465,7 +465,9 @@ export class AuthController {
           console.log("Cookies:", req.cookies);
 
           const refreshToken = req.cookies.refreshToken;
-          
+
+          console.log(`LIHAT CheckRefreshToken: ${refreshToken}`)
+
           if (!refreshToken) {
 
             return res.status(403).json(

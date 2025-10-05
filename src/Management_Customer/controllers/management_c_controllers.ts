@@ -76,9 +76,6 @@ export class ManagementController {
         const {  nik, username, email, password, phone, checkIn, bill_status, room_key, booking_status } = req.body;
 
         try {
-            // Generate user_id: 4 karakter acak + username
-            const randomCode = crypto.randomBytes(1).toString("hex").toUpperCase(); // 4 hex char
-            const user_id = `${username}${randomCode}`;
 
             const required = ["username", "email", "room_key", "phone", "checkIn"];
 
@@ -93,16 +90,6 @@ export class ManagementController {
                 }
             }
 
-            // 1. Cek apakah user_id sudah ada
-            const existingUser = await CustomerModel.findOne({ username });
-            if (existingUser) {
-                return res.status(400).json({
-                    requestId: uuidv4(),
-                    data: null,
-                    message: `Username ${user_id} sudah terdaftar.`,
-                    success: false
-                });
-            }
 
             // 2. Validasi format email
             const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -142,6 +129,26 @@ export class ManagementController {
                 const salt = await bcrypt.genSalt();
                 hashPassword = await bcrypt.hash(password, salt);
             }
+
+
+
+            // ✅ Generate user_id unik
+            let user_id = ""; // <-- tambahkan inisialisasi agar tidak undefined
+            let isUnique = false;
+
+            while (!isUnique) {
+                const prefix = username.substring(0, 6).toUpperCase();
+                const randomCode = crypto.randomBytes(2).toString("hex").toUpperCase(); // 4 karakter acak
+                user_id = `${prefix}${randomCode}`;
+
+                // Cek apakah user_id sudah ada
+                const existingUserId = await CustomerModel.findOne({ user_id });
+                if (!existingUserId) {
+                    isUnique = true; // aman, keluar dari loop
+                }
+            }
+
+     
 
             // 4. Simpan user
             const user = await CustomerModel.create({
@@ -199,11 +206,13 @@ export class ManagementController {
                 {_id: roomId, status: false, isDeleted: false }
             );
 
+            console.log(`Lihat : ${roomId}`);
+            
             let newStatus: boolean;
 
-            if (status === "M" || status === "P") {
+            if (status === "M" ) {
 
-                if(StatusRoom) throw new Error("Room sudah di gunakan");
+                if(StatusRoom) throw new Error("Room sudah di gunakan (update status booking)");
 
                 newStatus = false; // kamar dipakai
 
@@ -216,6 +225,7 @@ export class ManagementController {
                 if (!updatedRoom) {
                     throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
                 }
+
 
 
             } else if (status === "K") {

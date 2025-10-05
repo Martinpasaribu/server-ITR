@@ -18,6 +18,8 @@ RoomRouter.patch("/:roomId/facility/:facilityCode", RoomControllers.UpdateFacili
 RoomRouter.post("/:roomId/facility", RoomControllers.AddFacility);
 RoomRouter.get("/code-room", RoomControllers.GetCodeRoom);
 
+RoomRouter.get("/update:id", RoomControllers.getRoomById);
+RoomRouter.put("/:id", RoomControllers.updateRoom);
 
 // ✅ Add one image ke array `images`
 RoomRouter.post(

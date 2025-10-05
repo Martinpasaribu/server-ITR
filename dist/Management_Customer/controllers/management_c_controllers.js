@@ -85,9 +85,6 @@ class ManagementController {
         return __awaiter(this, void 0, void 0, function* () {
             const { nik, username, email, password, phone, checkIn, bill_status, room_key, booking_status } = req.body;
             try {
-                // Generate user_id: 4 karakter acak + username
-                const randomCode = crypto_1.default.randomBytes(1).toString("hex").toUpperCase(); // 4 hex char
-                const user_id = `${username}${randomCode}`;
                 const required = ["username", "email", "room_key", "phone", "checkIn"];
                 // Cari field kosong
                 for (const field of required) {
@@ -98,16 +95,6 @@ class ManagementController {
                             success: false,
                         });
                     }
-                }
-                // 1. Cek apakah user_id sudah ada
-                const existingUser = yield management_cmodels_1.default.findOne({ username });
-                if (existingUser) {
-                    return res.status(400).json({
-                        requestId: (0, uuid_1.v4)(),
-                        data: null,
-                        message: `Username ${user_id} sudah terdaftar.`,
-                        success: false
-                    });
                 }
                 // 2. Validasi format email
                 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -141,6 +128,19 @@ class ManagementController {
                 if (password) {
                     const salt = yield bcrypt_1.default.genSalt();
                     hashPassword = yield bcrypt_1.default.hash(password, salt);
+                }
+                // ✅ Generate user_id unik
+                let user_id = ""; // <-- tambahkan inisialisasi agar tidak undefined
+                let isUnique = false;
+                while (!isUnique) {
+                    const prefix = username.substring(0, 6).toUpperCase();
+                    const randomCode = crypto_1.default.randomBytes(2).toString("hex").toUpperCase(); // 4 karakter acak
+                    user_id = `${prefix}${randomCode}`;
+                    // Cek apakah user_id sudah ada
+                    const existingUserId = yield management_cmodels_1.default.findOne({ user_id });
+                    if (!existingUserId) {
+                        isUnique = true; // aman, keluar dari loop
+                    }
                 }
                 // 4. Simpan user
                 const user = yield management_cmodels_1.default.create({
@@ -187,10 +187,11 @@ class ManagementController {
             }
             try {
                 const StatusRoom = yield room_models_1.default.findOne({ _id: roomId, status: false, isDeleted: false });
+                console.log(`Lihat : ${roomId}`);
                 let newStatus;
-                if (status === "M" || status === "P") {
+                if (status === "M") {
                     if (StatusRoom)
-                        throw new Error("Room sudah di gunakan");
+                        throw new Error("Room sudah di gunakan (update status booking)");
                     newStatus = false; // kamar dipakai
                     const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus }, { new: true });
                     if (!updatedRoom) {

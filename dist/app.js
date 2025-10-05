@@ -52,10 +52,14 @@ app.use((0, express_session_1.default)({
         // secure: false,
         // httpOnly: true,      
         // maxAge: 1000 * 60 * 60 * 24, // 1 hari
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'none',
         httpOnly: true,
-        maxAge: 1000 * 60 * 60 * 24,
+        secure: false, // localhost: tidak pakai https
+        sameSite: "lax", // Safari suka dengan lax untuk cross-port
+        maxAge: 1000 * 60 * 60 * 24, // 1 hari
+        // secure: process.env.NODE_ENV === 'production',
+        // sameSite: 'none',
+        // httpOnly: true, 
+        // maxAge: 1000 * 60 * 60 * 24, 
     }
 }));
 app.get('/', (req, res) => {

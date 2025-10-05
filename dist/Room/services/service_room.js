@@ -46,14 +46,33 @@ class RoomService {
     AddCustomerToRoom(_id, customer_key) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const AddCustomer = yield room_models_1.default.findOneAndUpdate({ _id, status: true }, { status: false, customer_key });
-                if (!AddCustomer) {
-                    throw new Error(`Room not found ${_id} (AddCustomerToRoom)`); // lempar error, biar controller yang handle response
+                // 1️⃣ Cek apakah customer sudah terdaftar di room lain
+                const existingRoom = yield room_models_1.default.findOne({ customer_key });
+                if (existingRoom) {
+                    // 2️⃣ Kosongkan data lama di room sebelumnya
+                    yield room_models_1.default.findByIdAndUpdate(existingRoom._id, {
+                        $set: {
+                            customer_key: null,
+                            status: true, // kembali available
+                        },
+                    });
+                    console.log(`Customer sebelumnya dihapus dari room ${existingRoom._id}`);
                 }
+                // 3️⃣ Tambahkan customer ke room baru
+                const updatedRoom = yield room_models_1.default.findOneAndUpdate({ _id, status: true }, {
+                    $set: {
+                        status: false, // room jadi tidak available
+                        customer_key,
+                    },
+                }, { new: true });
+                if (!updatedRoom) {
+                    throw new Error(`Room tidak ditemukan atau sudah terisi: ${_id}`);
+                }
+                console.log(`Customer ${customer_key} berhasil ditambahkan ke room ${_id}`);
                 return true;
             }
             catch (err) {
-                console.error("Gagal add customer to room:", err);
+                console.error("Gagal menambahkan customer ke room:", err);
                 throw err;
             }
         });

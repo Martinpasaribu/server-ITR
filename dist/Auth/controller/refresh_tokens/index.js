@@ -22,6 +22,8 @@ const refreshToken = (req, res) => __awaiter(void 0, void 0, void 0, function* (
     try {
         console.log("Cookies:", req.cookies);
         const refreshToken = req.cookies.refreshToken;
+        console.log(`LIHAT refreshToken : ${refreshToken}`);
+        console.log(`LIHAT req.cookies : ${JSON.stringify(req.cookies)}`);
         if (!refreshToken) {
             return res.status(401).json({ message: "Session cookies empty" });
         }
@@ -54,6 +56,7 @@ const refreshTokenCustomer = (req, res) => __awaiter(void 0, void 0, void 0, fun
     try {
         console.log("Cookies:", req.cookies);
         const refreshToken = req.cookies.refreshToken;
+        console.log(`LIHAT refreshTokenCustomer : ${refreshToken}`);
         if (!refreshToken) {
             return res.status(401).json({ message: "Session cookies empty" });
         }

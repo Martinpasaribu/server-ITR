@@ -25,6 +25,8 @@ RoomRouter.get("/:roomId/facility", room_controllers_1.RoomControllers.GetFacili
 RoomRouter.patch("/:roomId/facility/:facilityCode", room_controllers_1.RoomControllers.UpdateFacilityStatus);
 RoomRouter.post("/:roomId/facility", room_controllers_1.RoomControllers.AddFacility);
 RoomRouter.get("/code-room", room_controllers_1.RoomControllers.GetCodeRoom);
+RoomRouter.get("/update:id", room_controllers_1.RoomControllers.getRoomById);
+RoomRouter.put("/:id", room_controllers_1.RoomControllers.updateRoom);
 // ✅ Add one image ke array `images`
 RoomRouter.post("/:code/images", ImageKit_1.upload, (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     if (!req.file)
