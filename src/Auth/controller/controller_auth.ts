@@ -352,6 +352,9 @@ export class AuthController {
       
     static async Me  (req : any, res : any) {
 
+              console.log(`LIHAT session.userId : ${req.session.userId}`)
+              console.log(`LIHAT req.cookies : ${JSON.stringify(req.session)}`)
+      
           try {
 
               if(!req.session.userId){

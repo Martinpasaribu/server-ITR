@@ -291,6 +291,8 @@ class AuthController {
     }
     static Me(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
+            console.log(`LIHAT session.userId : ${req.session.userId}`);
+            console.log(`LIHAT req.cookies : ${JSON.stringify(req.session)}`);
             try {
                 if (!req.session.userId) {
                     return res.status(401).json({ message: "Your session-Id no exists", success: false });

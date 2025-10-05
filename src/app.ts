@@ -73,10 +73,15 @@ app.use(session({
         // httpOnly: true,      
         // maxAge: 1000 * 60 * 60 * 24, // 1 hari
 
-        httpOnly: true,
-        secure: false,  // localhost: tidak pakai https
-        sameSite: "lax", // Safari suka dengan lax untuk cross-port
-        maxAge: 1000 * 60 * 60 * 24, // 1 hari
+        // httpOnly: true,
+        // secure: false,  // localhost: tidak pakai https
+        // sameSite: "lax", // Safari suka dengan lax untuk cross-port
+        // maxAge: 1000 * 60 * 60 * 24, // 1 hari
+
+        httpOnly: true,        // wajib
+        secure: true,          // harus true kalau pakai HTTPS di live
+        sameSite: "none",      // wajib "none" untuk cross-site di HTTPS
+        maxAge: 1000 * 60 * 60 * 24,
 
         // secure: process.env.NODE_ENV === 'production',
         // sameSite: 'none',
