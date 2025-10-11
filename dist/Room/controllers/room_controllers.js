@@ -16,6 +16,7 @@ exports.RoomControllers = void 0;
 const uuid_1 = require("uuid");
 const room_models_1 = __importDefault(require("../models/room_models"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const service_room_1 = require("../services/service_room");
 class RoomControllers {
     static PostRoom(req, res) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -120,10 +121,10 @@ class RoomControllers {
                     });
                 }
                 const existingRoom = yield room_models_1.default.findOne({ code: code.trim().toUpperCase() });
-                if (existingRoom) {
+                if ((existingRoom === null || existingRoom === void 0 ? void 0 : existingRoom._id) != id) {
                     return res.status(409).json({
                         requestId: (0, uuid_1.v4)(),
-                        message: "Kode room sudah digunakan, silakan gunakan kode lain.",
+                        message: `Kode room sudah digunakan, silakan gunakan kode lain. : ${existingRoom === null || existingRoom === void 0 ? void 0 : existingRoom._id} - ${id}`,
                         success: false,
                     });
                 }
@@ -139,6 +140,8 @@ class RoomControllers {
                     updateData.price = price;
                 if (status !== undefined)
                     updateData.status = status;
+                if (status === true)
+                    updateData.customer_key = null;
                 // ⚡ Ganti seluruh facility lama dengan yang baru
                 if (Array.isArray(facility)) {
                     updateData.facility = facility;
@@ -152,19 +155,21 @@ class RoomControllers {
                         success: false,
                     });
                 }
+                const message_reset = yield service_room_1.RoomServices.UpdateStatusRoomByRoom(id);
                 // ✅ Berhasil
                 return res.status(200).json({
                     requestId: (0, uuid_1.v4)(),
                     message: "Room berhasil diperbarui",
+                    message_reset: message_reset,
                     success: true,
                     data: updatedRoom,
                 });
             }
-            catch (err) {
-                console.error("Error updateRoom:", err);
+            catch (error) {
+                console.error("Error updateRoom:", error);
                 return res.status(500).json({
                     requestId: (0, uuid_1.v4)(),
-                    message: "Terjadi kesalahan pada server",
+                    message: `Terjadi kesalahan pada server : ${error}`,
                     success: false,
                 });
             }

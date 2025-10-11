@@ -218,7 +218,7 @@ export class ManagementController {
 
                 const updatedRoom = await RoomModel.findByIdAndUpdate(
                     roomId,
-                    { status: newStatus },
+                    { status: newStatus, customer_key:id },
                     { new: true }
                 );
 
@@ -233,7 +233,7 @@ export class ManagementController {
 
                 const updatedRoom = await RoomModel.findByIdAndUpdate(
                     roomId,
-                    { status: newStatus },
+                    { status: newStatus, customer_key: null },
                     { new: true }
                 );
 

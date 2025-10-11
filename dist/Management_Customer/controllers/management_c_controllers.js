@@ -193,14 +193,14 @@ class ManagementController {
                     if (StatusRoom)
                         throw new Error("Room sudah di gunakan (update status booking)");
                     newStatus = false; // kamar dipakai
-                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus }, { new: true });
+                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus, customer_key: id }, { new: true });
                     if (!updatedRoom) {
                         throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
                     }
                 }
                 else if (status === "K") {
                     newStatus = true; // kamar dilepas
-                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus }, { new: true });
+                    const updatedRoom = yield room_models_1.default.findByIdAndUpdate(roomId, { status: newStatus, customer_key: null }, { new: true });
                     if (!updatedRoom) {
                         throw new Error(`Room not found ${roomId}`); // lempar error, biar controller yang handle response
                     }

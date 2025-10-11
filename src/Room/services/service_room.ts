@@ -1,3 +1,5 @@
+import BookingModel from "../../Booking/models/booking_models";
+import CustomerModel from "../../Management_Customer/models/management_cmodels";
 import RoomModel from "../models/room_models";
 
 class RoomService {
@@ -127,7 +129,6 @@ class RoomService {
   async UpdateStatusRoom(status: string, _id: string) {
     try {
 
-
       const StatusRoom = await RoomModel.findByIdAndUpdate(
         _id,
         {status: false }
@@ -166,6 +167,48 @@ class RoomService {
     }
   }
 
+  async UpdateStatusRoomByRoom(_id: string) {
+    
+    try {
+            
+      let message = {
+        booking: '',
+        customer: '',
+        error: ''
+      }
+
+      const Booking = await BookingModel.findOneAndUpdate(
+        { room_key: _id} ,
+        { status : "CL" },
+        { new: true }
+      );
+
+      if (!Booking) {
+
+        message.booking = 'Room no register in Booking'
+
+      }
+
+      const Customer = await CustomerModel.findOneAndUpdate(
+        { room_key: _id} ,
+        { booking_status : "K" },
+        { new: true }
+      );
+
+      if (!Customer) {
+
+        message.customer = 'Room no register in Customer'
+      }
+
+      return message
+
+    } catch (err) {
+      console.error("Gagal update status kamar:", err);
+      throw err;
+    }
+  }
+
+  
 
 }
 

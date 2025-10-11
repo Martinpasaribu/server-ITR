@@ -12,6 +12,6 @@ CustomerRouter.get("/", management_c_controllers_1.ManagementController.getCusto
 CustomerRouter.post("/", VerifyAdminId_1.verifyAdmin, management_c_controllers_1.ManagementController.Register);
 CustomerRouter.patch("/status/:id", management_c_controllers_1.ManagementController.UpdateStatusBooking);
 CustomerRouter.put("/:id", management_c_controllers_1.ManagementController.UpdateCustomer);
-CustomerRouter.delete("/:_id/:room_id", management_c_controllers_1.ManagementController.DeletedCustomer);
 CustomerRouter.patch("/update/:_id", management_c_controllers_1.ManagementController.UpdateCustomerClient);
+CustomerRouter.delete("/:_id/:room_id", management_c_controllers_1.ManagementController.DeletedCustomer);
 exports.default = CustomerRouter;

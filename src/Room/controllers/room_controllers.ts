@@ -3,6 +3,7 @@ import { v4 as uuidv4 } from 'uuid';
 import RoomModel, { Facility } from '../models/room_models';
 import { Request, Response } from "express";
 import mongoose from 'mongoose';
+import { RoomServices } from '../services/service_room';
 
 export class RoomControllers {
 
@@ -117,10 +118,10 @@ export class RoomControllers {
             }
 
             const existingRoom = await RoomModel.findOne({ code: code.trim().toUpperCase() });
-            if (existingRoom) {
+            if (existingRoom?._id != id) {
                 return res.status(409).json({
                     requestId: uuidv4(),
-                    message: "Kode room sudah digunakan, silakan gunakan kode lain.",
+                    message: `Kode room sudah digunakan, silakan gunakan kode lain. : ${existingRoom?._id} - ${id}`,
                     success: false,
                 });
             }
@@ -133,6 +134,7 @@ export class RoomControllers {
             if (code !== undefined) updateData.code = code;
             if (price !== undefined) updateData.price = price;
             if (status !== undefined) updateData.status = status;
+            if (status === true) updateData.customer_key = null;
 
             // ⚡ Ganti seluruh facility lama dengan yang baru
             if (Array.isArray(facility)) {
@@ -154,18 +156,22 @@ export class RoomControllers {
                 });
             }
 
+            const message_reset = await RoomServices.UpdateStatusRoomByRoom(id);
+
             // ✅ Berhasil
             return res.status(200).json({
                 requestId: uuidv4(),
                 message: "Room berhasil diperbarui",
+                message_reset: message_reset,
                 success: true,
                 data: updatedRoom,
             });
-            } catch (err) {
-            console.error("Error updateRoom:", err);
+
+            } catch (error : any) {
+            console.error("Error updateRoom:", error);
             return res.status(500).json({
                 requestId: uuidv4(),
-                message: "Terjadi kesalahan pada server",
+                message: `Terjadi kesalahan pada server : ${error}`,
                 success: false,
             });
             }

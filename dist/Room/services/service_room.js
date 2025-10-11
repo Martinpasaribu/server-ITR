@@ -13,6 +13,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RoomServices = void 0;
+const booking_models_1 = __importDefault(require("../../Booking/models/booking_models"));
+const management_cmodels_1 = __importDefault(require("../../Management_Customer/models/management_cmodels"));
 const room_models_1 = __importDefault(require("../models/room_models"));
 class RoomService {
     KeepRoomBooking(status, _id) {
@@ -128,6 +130,30 @@ class RoomService {
                     throw new Error(`Room not found ${_id} (UpdateStatusRoom)`); // lempar error, biar controller yang handle response
                 }
                 return updatedRoom;
+            }
+            catch (err) {
+                console.error("Gagal update status kamar:", err);
+                throw err;
+            }
+        });
+    }
+    UpdateStatusRoomByRoom(_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                let message = {
+                    booking: '',
+                    customer: '',
+                    error: ''
+                };
+                const Booking = yield booking_models_1.default.findOneAndUpdate({ room_key: _id }, { status: "CL" }, { new: true });
+                if (!Booking) {
+                    message.booking = 'Room no register in Booking';
+                }
+                const Customer = yield management_cmodels_1.default.findOneAndUpdate({ room_key: _id }, { booking_status: "K" }, { new: true });
+                if (!Customer) {
+                    message.customer = 'Room no register in Customer';
+                }
+                return message;
             }
             catch (err) {
                 console.error("Gagal update status kamar:", err);
