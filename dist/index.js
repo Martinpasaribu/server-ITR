@@ -20,6 +20,7 @@ const PORT = process.env.PORT || 5000;
 const startServer = () => __awaiter(void 0, void 0, void 0, function* () {
     try {
         // await connectToDatabase();
+        // a
         yield (0, db_monggo_config_1.connectToMongoDB)();
         console.log('Server Read Database');
         app_1.default.listen(process.env.PORT, () => {

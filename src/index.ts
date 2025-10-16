@@ -14,6 +14,7 @@ const startServer = async () => {
         
         // await connectToDatabase();
 
+        // a
         await connectToMongoDB()
         console.log('Server Read Database');
         
